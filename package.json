@@ -1,7 +1,7 @@
 {
   "name": "lo-que-dijo-la-gente-electron",
   "productName": "Lo Que Dijo la Gente",
-  "version": "1.0.0",
+  "version": "0.2.0-alpha",
   "description": "Juego de encuestas por equipos con consola para el conductor y pantalla para el proyector. Funciona sin internet.",
   "main": "electron/main.cjs",
   "private": true,
