@@ -1,0 +1,128 @@
+name: Build desktop app
+
+# Builds the Electron app on native runners for Windows, macOS and Linux.
+# - Pull requests / pushes to main: tests only (no installers, so no macOS/Windows minutes).
+# - Tags "v*" (e.g. v1.0.1): tests, installers for the 3 platforms, and a draft GitHub Release
+#   with every installer plus LEEME.txt attached.
+# - Manual run: Actions tab -> "Build desktop app" -> Run workflow. It builds only when a v* tag
+#   is selected as the ref; on a branch it runs the tests.
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24"
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check tag matches package.json version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $PKG_VERSION"
+            exit 1
+          fi
+
+      - run: npx vitest run
+
+  build:
+    name: Build (${{ matrix.name }})
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-latest
+            script: dist:linux
+            files: |
+              release/*.AppImage
+          - name: windows
+            os: windows-latest
+            script: dist:win
+            files: |
+              release/*.exe
+          - name: mac
+            os: macos-latest
+            script: dist:mac
+            files: |
+              release/*.dmg
+              release/*.zip
+    env:
+      # The app is not code-signed yet (see HU-34); keep electron-builder from looking for certificates.
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      # "--publish never": publishing is handled by the release job, not electron-builder.
+      - name: Build installers
+        run: npm run ${{ matrix.script }} -- --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.name }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: LEEME.txt
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: installers-*
+          path: installers
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            installers/*
+            LEEME.txt

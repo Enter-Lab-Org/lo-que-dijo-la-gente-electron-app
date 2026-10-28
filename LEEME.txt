@@ -1,0 +1,134 @@
+LO QUE DIJO LA GENTE
+Juego de encuestas por equipos para talleres y eventos.
+Funciona sin internet en Windows, Mac y Linux.
+
+Al abrirlo salen dos ventanas:
+  - CONSOLA: se queda en tu pantalla. Aquí ves todas las respuestas,
+    revelas, marcas strikes, das puntos, armas el banco de preguntas
+    y cambias el diseño para cada cliente.
+  - PÚBLICO: se manda sola al proyector en pantalla completa. Solo muestra
+    el tablero; las respuestas ocultas nunca aparecen ahí.
+
+
+1. ABRIR EL JUEGO
+-----------------
+  En cada archivo, "X.Y.Z" es el número de versión.
+
+WINDOWS
+  Elige uno de los dos archivos:
+    - LoQueDijoLaGente-X.Y.Z-Windows-Setup.exe     instalador (crea acceso directo)
+    - LoQueDijoLaGente-X.Y.Z-Windows-Portable.exe  se abre directo, sin instalar
+
+  1. Haz doble clic en el archivo. Con el instalador, sigue los pasos.
+  2. La primera vez Windows puede decir "Windows protegió tu PC".
+     Toca "Más información" y luego "Ejecutar de todas formas".
+
+MAC
+  Usa el archivo que corresponde a tu Mac:
+    - Mac con chip Apple (M1, M2, M3, M4…): LoQueDijoLaGente-X.Y.Z-Mac-arm64.dmg
+    - Mac con procesador Intel:              LoQueDijoLaGente-X.Y.Z-Mac-x64.dmg
+  (Lo ves en  > Acerca de esta Mac > "Chip" o "Procesador".)
+  Si recibiste un .zip en lugar de un .dmg, funciona igual: haz doble clic
+  en el .zip y sigue desde el paso 2.
+
+  1. Haz doble clic en el .dmg.
+  2. Arrastra "Lo Que Dijo la Gente" a Aplicaciones.
+  3. La app no está firmada por Apple, así que la primera vez hay que darle
+     permiso. Abre la app Terminal, pega esta línea y presiona Enter:
+
+     xattr -cr "/Applications/Lo Que Dijo la Gente.app" && codesign --force --deep -s - "/Applications/Lo Que Dijo la Gente.app"
+
+  4. Ábrela desde Aplicaciones. Si aún pregunta, haz clic derecho > Abrir > Abrir.
+  Solo se hace una vez.
+
+LINUX
+  Archivo: LoQueDijoLaGente-X.Y.Z-Linux-x86_64.AppImage
+
+  1. Dale permiso de ejecución: clic derecho > Propiedades > Permitir ejecutar,
+     o en una terminal:  chmod +x LoQueDijoLaGente-*.AppImage
+  2. Haz doble clic en el archivo.
+  Si no abre, instala FUSE 2 (en Ubuntu: sudo apt install libfuse2).
+
+
+2. CONECTAR EL PROYECTOR
+------------------------
+  La clave es que la computadora EXTIENDA la pantalla (no que la duplique).
+
+  Windows: presiona la tecla Windows + P y elige "Extender".
+  Mac:     Configuración del Sistema > Pantallas. Si las dos pantallas
+           muestran lo mismo, desactiva "Duplicar" o "Usar como: Duplicado".
+  Linux:   Configuración > Pantallas y elige "Unir pantallas" o "Extender".
+
+  - Si el proyector ya está conectado al abrir el juego, la ventana del
+    público se va sola al proyector en pantalla completa.
+  - Si lo conectas con el juego abierto, también se manda sola.
+  - En la consola, arriba, está el recuadro "Pantalla del público":
+      Enviar a esa pantalla  -> la manda a la pantalla que elijas.
+      En ventana             -> la deja como ventana normal en tu pantalla.
+      Ocultar / Mostrar      -> la esconde o la vuelve a sacar.
+  - Si la pantalla del público quedó encima de tu consola, presiona Esc
+    estando en ella y regresa a ventana.
+  - Atajos del menú Ver: Ctrl+P (Cmd+P en Mac) la manda al proyector;
+    Ctrl+Mayús+P la deja en ventana.
+
+
+3. JUGAR
+--------
+  Teclado en la consola (pestaña Juego):
+    1 a 8   revelan u ocultan la respuesta con ese número
+    X       strike (aparece la X grande y suena en el proyector)
+    A / B   dan los puntos en juego al equipo 1 o 2
+    ← →     pregunta anterior / siguiente
+
+  - "Mostrar todas" destapa las que faltan sin sumarlas a los puntos.
+  - x2 y x3 multiplican los puntos de la ronda.
+  - Los nombres y puntos de los equipos se pueden corregir a mano.
+  - El sonido sale por la pantalla del público. Si el proyector
+    no tiene bocinas, conecta unas a la computadora.
+
+
+4. BANCO DE PREGUNTAS
+---------------------
+  - Cada pregunta lleva una categoría (por ejemplo, el nombre del cliente)
+    para filtrarlas rápido.
+  - "Agregar a la partida" las pone en la lista que vas a jugar hoy.
+    En la pestaña Juego puedes reordenarlas o quitarlas.
+  - "Importar en bloque" acepta texto así (línea en blanco entre preguntas):
+
+      Menciona algo que no puede faltar en una carne asada
+      Tortillas | 34
+      Cerveza | 25
+      Salsa | 15
+
+  - Vienen 6 preguntas de ejemplo con puntajes inventados. Bórralas cuando
+    quieras.
+
+
+5. RESPALDO Y CAMBIO DE COMPUTADORA
+-----------------------------------
+  Todo se guarda solo en la computadora:
+    Windows: %APPDATA%\Lo Que Dijo la Gente\datos
+    Mac:     ~/Library/Application Support/Lo Que Dijo la Gente/datos
+    Linux:   ~/.config/Lo Que Dijo la Gente/datos
+
+  Si ya usabas la versión anterior del juego, tus preguntas y partidas
+  siguen ahí: es la misma carpeta.
+
+  En Banco de preguntas > Respaldo, "Guardar respaldo" crea un archivo .json
+  con tus preguntas y el diseño. En otra computadora usa "Abrir archivo"
+  para cargarlo.
+
+
+6. PARA QUIEN PROGRAMA
+----------------------
+  Necesitas Node.js 22.12 o más nuevo. Los detalles están en README.md.
+    npm install          instala Electron y las herramientas
+    npm run dev          abre el juego en modo desarrollo
+    npm run dist:all     desde Linux: AppImage, .exe de Windows y .zip de Mac
+    npm run dist:mac     .dmg y .zip para Mac (solo en una Mac)
+
+  Las versiones oficiales se crean solas en GitHub al subir un tag "v*"
+  (por ejemplo v1.0.1) y quedan en un Release borrador.
+
+  Tipografías Bungee, Barlow y Barlow Condensed bajo licencia SIL Open Font
+  License (src/styles/fonts/OFL-LICENSE.txt).
