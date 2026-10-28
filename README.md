@@ -43,6 +43,7 @@ Installers are built only for tags, which keeps macOS and Windows runner minutes
 `LEEME.txt` is the end-user guide (Spanish) attached to each release.
 
 The tag must match `version` in `package.json`, or the run fails before building.
+A tag with a hyphen (`v0.2.0-alpha`, `v1.0.0-beta.1`) creates the release as a pre-release.
 The workflow expects this folder to be the repository root.
 
 npm 11 can block install scripts. If `node_modules/electron/dist` is missing after `npm install`,
