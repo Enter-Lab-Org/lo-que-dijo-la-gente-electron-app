@@ -6,10 +6,19 @@ import { parseBlock } from "./textFormat";
 
 export const NO_CATEGORY = "__none";
 
+// Backups and stored data are untrusted: anything that is not text would crash React when rendered.
+const text = (v) => (typeof v === "string" ? v : typeof v === "number" && Number.isFinite(v) ? String(v) : "");
+const points = (v) => { const n = parseInt(v, 10); return n > 0 ? n : 0; };
+const sanitizeAnswers = (answers) =>
+  (Array.isArray(answers) ? answers : [])
+    .filter((a) => a && typeof a === "object" && text(a.text))
+    .slice(0, MAX_ANSWERS)
+    .map((a) => ({ text: text(a.text), pts: points(a.pts) }));
+
 export const sanitizeBank = (items) =>
   (Array.isArray(items) ? items : [])
-    .filter(Boolean)
-    .map((d) => ({ id: String(d.id ?? ""), q: d.q || "", cat: d.cat || "", answers: Array.isArray(d.answers) ? d.answers : [], updatedAt: d.updatedAt || 0 }))
+    .filter((d) => d && typeof d === "object")
+    .map((d) => ({ id: text(d.id), q: text(d.q), cat: text(d.cat), answers: sanitizeAnswers(d.answers), updatedAt: Number(d.updatedAt) || 0 }))
     .filter((d) => d.id && d.q && d.answers.length)
     .sort((a, b) => (a.cat || "~").localeCompare(b.cat || "~", "es") || a.q.localeCompare(b.q, "es"));
 

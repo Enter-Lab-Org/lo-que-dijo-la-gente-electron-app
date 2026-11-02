@@ -74,11 +74,38 @@ describe("bus", () => {
     const bus = createBus({ win: window, BroadcastChannelImpl: FakeChannel });
     bus.setPublicWindow(pub);
     bus.post({ kind: "theme" });
-    expect(pub.postMessage).toHaveBeenCalledWith({ __ldlg: true, m: { kind: "theme" } }, "*");
+    expect(pub.postMessage).toHaveBeenCalledWith({ __ldlg: true, m: { kind: "theme" } }, window.location.origin);
     const got = vi.fn();
     bus.on(got);
-    window.dispatchEvent(new MessageEvent("message", { data: { __ldlg: true, m: { kind: "hello" } }, source: null }));
+    window.dispatchEvent(new MessageEvent("message", { data: { __ldlg: true, m: { kind: "hello" } }, source: null, origin: window.location.origin }));
     expect(got).not.toHaveBeenCalled();
+  });
+
+  it("ignores messages from another origin, even from the opened window or the opener", () => {
+    const pub = { closed: false, postMessage: vi.fn() };
+    const opener = { closed: false, postMessage: vi.fn() };
+    const win = Object.assign(new EventTarget(), { location: { origin: "https://game.example" }, opener });
+    const bus = createBus({ win, BroadcastChannelImpl: undefined });
+    bus.setPublicWindow(pub);
+    const got = vi.fn();
+    bus.on(got);
+    const data = { __ldlg: true, m: { kind: "hello" } };
+    win.dispatchEvent(new MessageEvent("message", { data, source: opener, origin: "https://evil.example" }));
+    win.dispatchEvent(new MessageEvent("message", { data, source: pub, origin: "https://evil.example" }));
+    expect(got).not.toHaveBeenCalled();
+    win.dispatchEvent(new MessageEvent("message", { data, source: opener, origin: "https://game.example" }));
+    expect(got).toHaveBeenCalledWith({ kind: "hello" });
+    bus.post({ kind: "pub" });
+    expect(opener.postMessage).toHaveBeenCalledWith({ __ldlg: true, m: { kind: "pub" } }, "https://game.example");
+  });
+
+  it("falls back to '*' only for an opaque origin (file://), which a remote page cannot open", () => {
+    const pub = { closed: false, postMessage: vi.fn() };
+    const win = Object.assign(new EventTarget(), { location: { origin: "null" }, opener: null });
+    const bus = createBus({ win, BroadcastChannelImpl: undefined });
+    bus.setPublicWindow(pub);
+    bus.post({ kind: "theme" });
+    expect(pub.postMessage).toHaveBeenCalledWith({ __ldlg: true, m: { kind: "theme" } }, "*");
   });
 
   it("works without BroadcastChannel", () => {

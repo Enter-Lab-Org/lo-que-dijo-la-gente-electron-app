@@ -111,6 +111,22 @@ describe("backup", () => {
     expect(B.mergeBackup([], "null")).toEqual({ error: "invalid" });
     expect(B.mergeBackup([], JSON.stringify({ banco: [] }))).toEqual({ error: "empty" });
   });
+
+  it("normalizes malformed backup rows so they cannot crash rendering", () => {
+    const text = JSON.stringify({ banco: [
+      { id: "a", q: "Ok", cat: { x: 1 }, answers: [{ text: { x: 1 }, pts: 5 }, null, "str", { text: "Bien", pts: "7" }, { text: 3, pts: "nope" }, { text: "Neg", pts: -2 }] },
+      { id: "b", q: { x: 1 }, answers: [{ text: "r", pts: 1 }] },
+      { id: "c", q: "Sin respuestas válidas", answers: [{ text: [] }] },
+    ] });
+    const r = B.mergeBackup([], text);
+    expect(r.bank).toEqual([{ id: "a", q: "Ok", cat: "", answers: [{ text: "Bien", pts: 7 }, { text: "3", pts: 0 }, { text: "Neg", pts: 0 }], updatedAt: expect.any(Number) }]);
+    expect(r.bank.flatMap((b) => [b.q, b.cat, ...b.answers.map((a) => a.text)]).every((v) => typeof v === "string")).toBe(true);
+  });
+
+  it("sanitizeBank cleans corrupted stored data and keeps valid rows unchanged", () => {
+    const good = row("1", "Bien");
+    expect(B.sanitizeBank([good, { id: "2", q: "x", answers: [{ text: {} }] }])).toEqual([good]);
+  });
 });
 
 describe("question form", () => {
