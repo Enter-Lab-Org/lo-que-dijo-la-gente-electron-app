@@ -20,7 +20,7 @@ Desktop version of the offline team survey game ("Family Feud" style): the React
 | `npm run dist:all` | From Linux: AppImage, Windows installer + portable, Mac zips (Apple Silicon + Intel). Cleans `release/` first |
 | `npm run dist:linux` | Linux x64 AppImage |
 | `npm run dist:linux:dir` | Unpacked Linux app in `release/linux-unpacked/` (quick local check) |
-| `npm run dist:win` | Windows x64 installer (NSIS) + portable `.exe`. Run on Windows |
+| `npm run dist:win` | Windows x64 installer (NSIS, per-machine into Program Files; asks for UAC elevation) + portable `.exe`. Run on Windows |
 | `npm run dist:win:container` | Same Windows build from Linux/macOS, inside `electronuserland/builder:wine` (needs podman or docker) |
 | `npm run dist:mac` | Mac `.dmg` + `.zip` for Apple Silicon and Intel. Run on a Mac |
 | `npm run dist:mac:zip` | Mac `.zip` only, works from Linux |

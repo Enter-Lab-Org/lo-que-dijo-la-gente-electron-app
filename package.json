@@ -40,7 +40,16 @@
     "files": ["dist/**/*", "electron/**/*", "!electron/**/*.test.*", "package.json"],
     "directories": { "output": "release" },
     "win": { "target": ["nsis", "portable"] },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "artifactName": "LoQueDijoLaGente-${version}-Windows-Setup.${ext}" },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Lo Que Dijo la Gente",
+      "artifactName": "LoQueDijoLaGente-${version}-Windows-Setup.${ext}"
+    },
     "portable": { "artifactName": "LoQueDijoLaGente-${version}-Windows-Portable.${ext}" },
     "mac": { "target": ["dmg", "zip"], "category": "public.app-category.games", "identity": null, "artifactName": "LoQueDijoLaGente-${version}-Mac-${arch}.${ext}" },
     "linux": { "target": ["AppImage"], "category": "Game", "executableName": "lo-que-dijo-la-gente", "artifactName": "LoQueDijoLaGente-${version}-Linux-${arch}.${ext}" }

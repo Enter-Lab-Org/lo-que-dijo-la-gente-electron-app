@@ -20,6 +20,11 @@ WINDOWS
     - LoQueDijoLaGente-X.Y.Z-Windows-Portable.exe  se abre directo, sin instalar
 
   1. Haz doble clic en el archivo. Con el instalador, sigue los pasos.
+     El instalador pone el juego en "Archivos de programa" para todos los
+     usuarios, por eso Windows te pedirá permiso de administrador
+     ("¿Quieres permitir que esta aplicación haga cambios?"): toca "Sí".
+     Crea accesos directos en el Escritorio y en el menú Inicio.
+     Si no tienes permiso de administrador, usa el portable.
   2. La primera vez Windows puede decir "Windows protegió tu PC".
      Toca "Más información" y luego "Ejecutar de todas formas".
 
